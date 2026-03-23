@@ -82,4 +82,4 @@ Generated project includes:
 
 ## 📄 License
 
-MIT
+MIT © 2026 codehassoul
