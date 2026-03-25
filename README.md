@@ -1,6 +1,12 @@
+![npm version](https://img.shields.io/npm/v/setup-node-api)
+![npm downloads](https://img.shields.io/npm/dm/setup-node-api)
+![license](https://img.shields.io/npm/l/setup-node-api)
+
 # 🚀 setup-node-api
 
-Create a production-ready Node.js + Express API instantly from your terminal.
+Scaffold a production-ready Node.js + Express API in seconds — with interactive setup and zero configuration.
+
+🔗 GitHub: https://github.com/codehassoul/setup-node-api
 
 ---
 
@@ -20,6 +26,14 @@ Create a production-ready Node.js + Express API instantly from your terminal.
 
 ```bash
 npx setup-node-api my-app
+```
+
+---
+
+## 🎬 Demo
+
+```bash
+npx setup-node-api
 ```
 
 ---
@@ -110,6 +124,21 @@ If the target folder already exists, the CLI will ask before overwriting:
 
 ---
 
+## ✨ What happens after setup?
+
+```bash
+✨ Project ready!
+
+📁 Location:
+   ./my-app
+
+👉 Next steps:
+   cd my-app
+   npm start
+```
+
+---
+
 ## 📁 Generated Project
 
 Each project includes:
@@ -153,7 +182,7 @@ Most scaffolding tools are either:
 
 **setup-node-api** focuses on:
 
-> simplicity + good developer experience
+> simplicity + great developer experience
 
 ---
 

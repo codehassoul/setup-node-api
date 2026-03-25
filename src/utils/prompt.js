@@ -8,7 +8,7 @@ async function getInquirer() {
 }
 
 async function askProjectDetails(options = {}) {
-  const inquirer = await getInquirer(); // 👈 ADD THIS
+  const inquirer = await getInquirer();
 
   const questions = [];
 

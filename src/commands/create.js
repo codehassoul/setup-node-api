@@ -6,8 +6,6 @@ async function createProject(projectName, options = {}) {
 
   const reservedNames = ["node_modules", ".git", ".", ".."];
 
-  // --- VALIDATION ---
-
   if (reservedNames.includes(projectName)) {
     console.log(chalk.red("❌ Invalid project name"));
     console.log(
@@ -29,8 +27,6 @@ async function createProject(projectName, options = {}) {
   const projectPath = path.join(process.cwd(), projectName);
 
   console.log(chalk.cyan(`\n🚀 Creating Node API: ${projectName}\n`));
-
-  // --- MAIN FLOW ---
 
   createProjectFolder(projectPath);
 
@@ -55,8 +51,6 @@ async function createProject(projectName, options = {}) {
   }
 
   showNextSteps(projectName, options);
-
-  // --- FUNCTIONS ---
 
   function createProjectFolder(projectPath) {
     if (fs.existsSync(projectPath)) {

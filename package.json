@@ -3,23 +3,39 @@
   "version": "1.1.0",
   "description": "CLI to create a Node.js Express API instantly",
   "type": "commonjs",
+  "main": "bin/cli.js",
   "bin": {
     "setup-node-api": "bin/cli.js"
   },
   "keywords": [
     "cli",
-    "node",
+    "nodejs",
     "express",
     "api",
-    "scaffold"
+    "scaffold",
+    "boilerplate",
+    "generator",
+    "backend",
+    "npx"
   ],
   "author": "codehassoul",
   "license": "MIT",
+  "homepage": "https://github.com/codehassoul/setup-node-api#readme",
+  "bugs": {
+    "url": "https://github.com/codehassoul/setup-node-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/codehassoul/setup-node-api.git"
+  },
   "files": [
     "bin",
     "src",
     "templates"
   ],
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
     "chalk": "^4.1.2",
     "commander": "^14.0.3",

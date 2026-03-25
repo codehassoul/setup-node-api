@@ -2,7 +2,7 @@
 
 const { Command } = require("commander");
 const createProject = require("../src/commands/create");
-const { askProjectDetails } = require("../src/utils/prompt"); // ✅ FIXED
+const { askProjectDetails } = require("../src/utils/prompt");
 const fs = require("fs");
 const path = require("path");
 
@@ -14,7 +14,7 @@ program
   .version("1.0.0");
 
 program
-  .argument("[project-name]", "Name of the project") // ✅ OPTIONAL NOW
+  .argument("[project-name]", "Name of the project")
   .option("--no-install", "Skip installing dependencies")
   .option("--port <number>", "Set server port")
   .option("--typescript", "Use TypeScript template")
@@ -24,7 +24,6 @@ program
     const hasTypescriptFlag = args.includes("--typescript");
     const hasNoInstallFlag = args.includes("--no-install");
 
-    // 👉 STEP 1: get project name first
     const initialAnswers = await askProjectDetails({
       projectName,
       typescript: hasTypescriptFlag ? true : undefined,
@@ -33,7 +32,6 @@ program
 
     const projectPath = path.join(process.cwd(), initialAnswers.projectName);
 
-    // 👉 STEP 2: overwrite check BEFORE creation
     if (fs.existsSync(projectPath)) {
       const { default: inquirer } = await import("inquirer");
       const { overwrite } = await inquirer.prompt([
@@ -54,7 +52,6 @@ program
       console.log("🧹 Existing folder removed\n");
     }
 
-    // 👉 STEP 3: create project
     await createProject(initialAnswers.projectName, {
       typescript: initialAnswers.typescript,
       install: initialAnswers.install,
