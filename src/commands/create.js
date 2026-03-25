@@ -104,6 +104,11 @@ async function createProject(projectName, options = {}) {
   }
 
   function showNextSteps(projectName, options = {}) {
+    console.log(chalk.green("\n✨ Project ready!\n"));
+
+    console.log(chalk.cyan("📁 Location:"));
+    console.log(`   ${path.join(process.cwd(), projectName)}\n`);
+
     console.log(chalk.magenta("👉 Next steps:"));
     console.log(`   cd ${projectName}`);
 
