@@ -1,3 +1,31 @@
+# dependencies
 node_modules/
+
+# logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# environment variables
+.env
+.env.local
+.env.*.local
+
+# build output (for TS templates if ever used internally)
+dist/
+
+# editor files
+.vscode/
+.idea/
+
+# coverage / test
+coverage/
+
+# temp files
+*.tmp
+*.temp

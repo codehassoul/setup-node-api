@@ -1,11 +1,17 @@
 {
   "name": "setup-node-api",
   "version": "1.1.2",
-  "description": "CLI to create a Node.js Express API instantly",
+  "description": "CLI tool to scaffold Node.js + Express APIs instantly",
   "type": "commonjs",
   "main": "bin/cli.js",
   "bin": {
     "setup-node-api": "bin/cli.js"
+  },
+  "preferGlobal": true,
+  "scripts": {
+    "start": "node bin/cli.js",
+    "dev": "node bin/cli.js",
+    "test": "echo \"No tests yet\""
   },
   "keywords": [
     "cli",
@@ -33,6 +39,9 @@
     "src",
     "templates"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=16"
   },

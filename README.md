@@ -1,159 +1,60 @@
 ![npm version](https://img.shields.io/npm/v/setup-node-api)
-![npm downloads](https://img.shields.io/npm/dm/setup-node-api)
-![license](https://img.shields.io/npm/l/setup-node-api)
+![downloads](https://img.shields.io/npm/dm/setup-node-api)
 
-# 🚀 setup-node-api
+# setup-node-api
 
-Scaffold a production-ready Node.js + Express API in seconds — with interactive setup and zero configuration.
+A minimal CLI for scaffolding Node.js + Express APIs.
 
-🔗 GitHub: https://github.com/codehassoul/setup-node-api
-
----
-
-## ✨ Features
-
-* ⚡ **Instant project setup** with zero configuration
-* 🤖 **Interactive mode** for beginners (guided prompts)
-* 🧠 **Smart CLI behavior** (flags + prompts hybrid)
-* 🛡️ **Safe overwrite handling** with confirmation
-* 🎨 Clean CLI output (colors + spinner)
-* 🔧 Configurable via flags
-* 📦 Works directly with `npx` (no install required)
+Opinionated, simple, and focused on developer experience.
 
 ---
 
-## 📦 Quick Start
+## Quick Start
 
 ```bash
-npx setup-node-api my-app
+npx setup-node-api my-api
 ```
 
 ---
 
-## 🎬 Demo
+## Features
 
-```bash
-npx setup-node-api
-```
-
----
-
-## 🧠 Interactive Mode
-
-Run without arguments:
-
-```bash
-npx setup-node-api
-```
-
-You’ll be guided through:
-
-* Project name
-* TypeScript or JavaScript
-* Install dependencies
+* Fast API scaffolding
+* JavaScript and TypeScript support
+* Interactive prompts + CLI flags
+* Safe project creation
+* Clean project structure
 
 ---
 
-## ▶️ Usage
+## Usage
 
 ```bash
 setup-node-api <project-name>
 ```
 
----
-
-## ⚙️ Options
-
-### Skip installing dependencies
+### Options
 
 ```bash
-setup-node-api my-app --no-install
+--typescript
+--no-install
+--port <number>
 ```
 
 ---
 
-### Use TypeScript template
+## Example
 
 ```bash
-setup-node-api my-app --typescript
+npx setup-node-api my-api --typescript
 ```
 
 ---
 
-### Set custom port
-
-```bash
-setup-node-api my-app --port 5000
-```
-
----
-
-## 🧪 Examples
-
-### Full interactive
-
-```bash
-npx setup-node-api
-```
-
----
-
-### With flags (no prompts)
-
-```bash
-npx setup-node-api my-api --typescript --no-install
-```
-
----
-
-### Custom port
-
-```bash
-npx setup-node-api my-api --port 4000
-```
-
----
-
-## 🛡️ Safety
-
-If the target folder already exists, the CLI will ask before overwriting:
-
-```bash
-? Folder already exists. Overwrite? (y/N)
-```
-
----
-
-## ✨ What happens after setup?
-
-```bash
-✨ Project ready!
-
-📁 Location:
-   ./my-app
-
-👉 Next steps:
-   cd my-app
-   npm start
-```
-
----
-
-## 📁 Generated Project
-
-Each project includes:
-
-* Express server setup
-* `/health` endpoint
-* `.env` support
-* Ready-to-run scripts
-
----
-
-## 📁 Example Structure
+## Generated Project
 
 ```
-my-app/
+my-api/
   ├── src/
   │   └── app.js / app.ts
   ├── package.json
@@ -162,30 +63,24 @@ my-app/
 
 ---
 
-## 🛠️ Tech Stack
+## Architecture
 
-* Node.js
-* Express
-* Commander
-* Inquirer
-* Chalk
-* Ora
+* CLI layer (Commander)
+* Core orchestration layer
+* Services (template, install, filesystem)
+* Prompt system + validation
 
 ---
 
-## 🎯 Why This Tool?
+## Roadmap
 
-Most scaffolding tools are either:
-
-* too complex
-* or too minimal
-
-**setup-node-api** focuses on:
-
-> simplicity + great developer experience
+* Command-based CLI (`create`, `add`, `generate`)
+* Config file support
+* Plugin system
+* AI-assisted scaffolding
 
 ---
 
-## 📄 License
+## License
 
-MIT © 2026 codehassoul
+MIT
