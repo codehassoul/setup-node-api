@@ -7,10 +7,7 @@ async function createProject(projectName, options = {}) {
   const reservedNames = ["node_modules", ".git", ".", ".."];
 
   if (reservedNames.includes(projectName)) {
-    console.log(chalk.red("❌ Invalid project name"));
-    console.log(
-      chalk.yellow("This name is reserved. Please choose another name."),
-    );
+    console.log(chalk.red(`❌ Invalid project name: "${projectName}" is reserved`));
     process.exit(1);
   }
 
@@ -18,8 +15,8 @@ async function createProject(projectName, options = {}) {
     console.log(chalk.red("❌ Invalid project name"));
     console.log(
       chalk.yellow(
-        "Use only letters, numbers, hyphens (-), and underscores (_)",
-      ),
+        "Use only letters, numbers, hyphens (-), and underscores (_)"
+      )
     );
     process.exit(1);
   }
@@ -31,16 +28,19 @@ async function createProject(projectName, options = {}) {
   createProjectFolder(projectPath);
 
   const templateName = options.typescript ? "node-api-ts" : "node-api";
-
   const templatePath = path.join(__dirname, `../../templates/${templateName}`);
+
+  // ✅ Template existence check
+  if (!fs.existsSync(templatePath)) {
+    console.log(chalk.red("❌ Template not found"));
+    process.exit(1);
+  }
 
   copyProjectTemplate(templatePath, projectPath);
 
   if (options.port) {
     const envPath = path.join(projectPath, ".env");
-    const envContent = `PORT=${options.port}\n`;
-
-    fs.writeFileSync(envPath, envContent);
+    fs.writeFileSync(envPath, `PORT=${options.port}\n`);
     console.log(chalk.green(`⚙️ Set port to ${options.port}`));
   }
 
@@ -68,7 +68,7 @@ async function createProject(projectName, options = {}) {
       console.log(chalk.green("📦 Template copied"));
     } catch (error) {
       console.log(chalk.red("❌ Failed to copy template"));
-      fs.rmSync(projectPath, { recursive: true, force: true });
+      console.log("⚠️ Project may be incomplete. Please check manually.");
       process.exit(1);
     }
   }
@@ -82,17 +82,20 @@ async function createProject(projectName, options = {}) {
     }).start();
 
     try {
+      // 🔥 stop spinner before logs
+      spinner.stop();
+
       execSync("npm install", {
         cwd: projectPath,
-        stdio: "ignore",
+        stdio: "inherit",
       });
-
-      await new Promise((r) => setTimeout(r, 300));
 
       spinner.succeed("Dependencies installed");
     } catch (error) {
       spinner.fail("Failed to install dependencies");
-      fs.rmSync(projectPath, { recursive: true, force: true });
+      console.log(
+        "⚠️ Project created but dependencies failed. Run npm install manually."
+      );
       process.exit(1);
     }
   }
@@ -110,18 +113,12 @@ async function createProject(projectName, options = {}) {
       console.log("   npm install");
     }
 
-    if (options.typescript) {
-      console.log("   npm run dev");
-    } else {
-      console.log("   npm start");
-    }
-
+    console.log(options.typescript ? "   npm run dev" : "   npm start");
     console.log("");
   }
 
   function isValidProjectName(name) {
-    const validNameRegex = /^[a-zA-Z0-9-_]+$/;
-    return validNameRegex.test(name);
+    return /^[a-zA-Z0-9-_]+$/.test(name);
   }
 
   function copyTemplate(src, dest) {
