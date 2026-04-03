@@ -23,6 +23,12 @@ Node.js 20.12.0 or newer is required.
 npx setup-node-api my-api
 ```
 
+Run it against the latest published version explicitly:
+
+```bash
+npx setup-node-api@latest my-api
+```
+
 Create a TypeScript project:
 
 ```bash
@@ -82,11 +88,34 @@ my-api/
     `-- app.ts
 ```
 
+The generated project name in `package.json` is automatically set to the selected folder name.
+
+## Examples
+
+Create a JavaScript project without installing dependencies:
+
+```bash
+setup-node-api my-api --no-install
+```
+
+Create a TypeScript project and set a custom port:
+
+```bash
+setup-node-api my-api --typescript --port 4000
+```
+
+Ask the CLI to guide you interactively:
+
+```bash
+setup-node-api
+```
+
 ## Development
 
 ```bash
 npm install
 npm test
+npm run check
 ```
 
 ## CI
@@ -97,7 +126,7 @@ GitHub Actions runs the test suite on Node.js 20 and 22 across Linux, Windows, a
 
 - In a non-interactive environment, provide the project name as an argument.
 - If the target folder already exists, the CLI stops unless you explicitly confirm overwrite in an interactive terminal.
-- The generated project package name is automatically set to the selected folder name.
+- `prepublishOnly` runs `npm run check` before publish.
 
 ## License
 
