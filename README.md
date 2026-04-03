@@ -1,85 +1,103 @@
-![npm version](https://img.shields.io/npm/v/setup-node-api)
-![downloads](https://img.shields.io/npm/dm/setup-node-api)
+[![npm version](https://img.shields.io/npm/v/setup-node-api)](https://www.npmjs.com/package/setup-node-api)
+[![npm downloads](https://img.shields.io/npm/dm/setup-node-api)](https://www.npmjs.com/package/setup-node-api)
+[![CI](https://github.com/codehassoul/setup-node-api/actions/workflows/ci.yml/badge.svg)](https://github.com/codehassoul/setup-node-api/actions/workflows/ci.yml)
 
 # setup-node-api
 
-A minimal CLI for scaffolding Node.js + Express APIs.
+`setup-node-api` scaffolds a minimal Node.js + Express API with sensible defaults.
 
-Opinionated, simple, and focused on developer experience.
+Node.js 20.12.0 or newer is required.
 
----
+## Features
 
-## Quick Start
+- Scaffold a ready-to-run Express API
+- Choose JavaScript or TypeScript
+- Use prompts interactively or pass CLI flags
+- Validate project names before generation
+- Avoid overwriting existing folders without confirmation
+- Optionally skip dependency installation
+
+## Quick start
 
 ```bash
 npx setup-node-api my-api
 ```
 
----
-
-## Features
-
-* Fast API scaffolding
-* JavaScript and TypeScript support
-* Interactive prompts + CLI flags
-* Safe project creation
-* Clean project structure
-
----
-
-## Usage
-
-```bash
-setup-node-api <project-name>
-```
-
-### Options
-
-```bash
---typescript
---no-install
---port <number>
-```
-
----
-
-## Example
+Create a TypeScript project:
 
 ```bash
 npx setup-node-api my-api --typescript
 ```
 
----
+Skip package installation:
 
-## Generated Project
+```bash
+npx setup-node-api my-api --no-install
+```
+
+Set a custom port:
+
+```bash
+npx setup-node-api my-api --port 8080
+```
+
+## CLI usage
+
+```bash
+setup-node-api [project-name] [options]
+```
+
+### Options
+
+| Option | Description |
+| --- | --- |
+| `--typescript` | Generate the TypeScript template |
+| `--no-install` | Skip dependency installation |
+| `--port <number>` | Write a custom `PORT` value to `.env` |
+| `-h, --help` | Show help |
+| `-V, --version` | Show the installed CLI version |
+
+If you omit some options, the CLI prompts for them in an interactive terminal.
+
+## Generated project
+
+JavaScript template:
 
 ```text
 my-api/
-  |-- src/
-  |   `-- app.js / app.ts
-  |-- package.json
-  `-- .env
+|-- .env
+|-- package.json
+`-- src/
+    `-- app.js
 ```
 
----
+TypeScript template:
 
-## Architecture
+```text
+my-api/
+|-- .env
+|-- package.json
+|-- tsconfig.json
+`-- src/
+    `-- app.ts
+```
 
-* CLI layer (Commander)
-* Core orchestration layer
-* Services (template, install, filesystem)
-* Prompt system + validation
+## Development
 
----
+```bash
+npm install
+npm test
+```
 
-## Roadmap
+## CI
 
-* Command-based CLI (`create`, `add`, `generate`)
-* Config file support
-* Plugin system
-* AI-assisted scaffolding
+GitHub Actions runs the test suite on Node.js 20 and 22 across Linux, Windows, and macOS for pushes to `main` and pull requests.
 
----
+## Notes
+
+- In a non-interactive environment, provide the project name as an argument.
+- If the target folder already exists, the CLI stops unless you explicitly confirm overwrite in an interactive terminal.
+- The generated project package name is automatically set to the selected folder name.
 
 ## License
 

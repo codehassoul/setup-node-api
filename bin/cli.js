@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const path = require("path");
+const chalk = require("chalk");
 const { Command } = require("commander");
 const packageJson = require("../package.json");
 const { createApp } = require("../src/core");
@@ -11,9 +12,28 @@ const { handleExistingDir } = require("../src/core/services/fileService");
 
 const program = new Command();
 
+function exitWithError(message, exitCode = 1) {
+  console.log(chalk.red(`Error: ${message}`));
+  process.exit(exitCode);
+}
+
+function parsePort(portValue) {
+  if (portValue === undefined) {
+    return undefined;
+  }
+
+  const parsedPort = Number.parseInt(portValue, 10);
+
+  if (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
+    throw new Error("Port must be an integer between 1 and 65535.");
+  }
+
+  return parsedPort;
+}
+
 program
   .name("setup-node-api")
-  .description("CLI to create a Node.js Express API")
+  .description("Scaffold a Node.js + Express API")
   .version(packageJson.version);
 
 program
@@ -25,28 +45,17 @@ program
     try {
       if (projectName !== undefined) {
         validateProjectName(projectName);
-
-        const projectPathCheck = path.join(process.cwd(), projectName);
-
-        if (projectPathCheck === process.cwd()) {
-          console.log("Error: cannot use current directory as project name.");
-          process.exit(1);
-        }
       }
     } catch (err) {
-      console.log("Error:", err.message);
-      process.exit(1);
+      exitWithError(err.message);
     }
 
-    const parsedPort =
-      options.port === undefined ? undefined : Number.parseInt(options.port, 10);
+    let parsedPort;
 
-    if (
-      options.port !== undefined &&
-      (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535)
-    ) {
-      console.log("Error: port must be an integer between 1 and 65535.");
-      process.exit(1);
+    try {
+      parsedPort = parsePort(options.port);
+    } catch (err) {
+      exitWithError(err.message);
     }
 
     const projectPath = projectName
@@ -54,16 +63,14 @@ program
       : null;
 
     if (projectPath && projectPath === process.cwd()) {
-      console.log("Error: refusing to overwrite the current directory.");
-      process.exit(1);
+      exitWithError("Refusing to overwrite the current directory.");
     }
 
     if (projectPath) {
       try {
         await handleExistingDir(projectPath);
       } catch (err) {
-        console.log("Warning:", err.message);
-        process.exit(0);
+        exitWithError(err.message);
       }
     }
 
@@ -74,8 +81,7 @@ program
         port: parsedPort,
       });
     } catch (err) {
-      console.log("Error:", err.message);
-      process.exit(1);
+      exitWithError(err.message);
     }
   });
 

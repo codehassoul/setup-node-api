@@ -1,6 +1,8 @@
 {
   "name": "node-api-ts",
+  "private": true,
   "version": "1.0.0",
+  "description": "Generated with setup-node-api",
   "main": "dist/app.js",
   "scripts": {
     "dev": "ts-node src/app.ts",

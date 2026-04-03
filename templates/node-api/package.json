@@ -1,6 +1,9 @@
 {
   "name": "node-api",
+  "private": true,
   "version": "1.0.0",
+  "description": "Generated with setup-node-api",
+  "type": "commonjs",
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js"

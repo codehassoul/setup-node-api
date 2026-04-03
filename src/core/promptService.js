@@ -1,4 +1,5 @@
 let inquirer;
+const { validateProjectName } = require("./validators/projectValidator");
 
 function isInteractive() {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
@@ -19,7 +20,14 @@ async function askProjectDetails(options = {}) {
       type: "input",
       name: "projectName",
       message: "Enter project name:",
-      validate: (input) => (input ? true : "Project name cannot be empty"),
+      validate: (input) => {
+        try {
+          validateProjectName(input);
+          return true;
+        } catch (error) {
+          return error.message;
+        }
+      },
     });
   }
 
@@ -64,7 +72,16 @@ async function askProjectDetails(options = {}) {
   }
 
   const inquirer = await getInquirer();
-  const answers = await inquirer.prompt(questions);
+  let answers;
+
+  try {
+    answers = await inquirer.prompt(questions);
+  } catch (error) {
+    if (error.name === "ExitPromptError") {
+      throw new Error("Operation cancelled");
+    }
+    throw error;
+  }
 
   return {
     projectName: options.projectName || answers.projectName,

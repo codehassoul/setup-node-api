@@ -1,27 +1,16 @@
 const { execSync } = require("child_process");
+const chalk = require("chalk");
 
 async function installDependencies(projectPath) {
-  const ora = (await import("ora")).default;
-
-  const spinner = ora({
-    text: "Installing dependencies...",
-    spinner: "dots",
-  }).start();
-
   try {
-    spinner.stop();
-
+    console.log("Installing dependencies with npm...\n");
     execSync("npm install", {
       cwd: projectPath,
       stdio: "inherit",
     });
-
-    spinner.succeed("Dependencies installed");
-  } catch (error) {
-    spinner.fail("Failed to install dependencies");
-    throw new Error(
-      "Dependencies failed. Run npm install manually."
-    );
+    console.log(chalk.green("Dependencies installed"));
+  } catch {
+    throw new Error("Dependency installation failed. Run npm install manually.");
   }
 }
 
