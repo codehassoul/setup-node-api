@@ -53,12 +53,12 @@ npx setup-node-api my-api --typescript
 
 ## Generated Project
 
-```
+```text
 my-api/
-  ├── src/
-  │   └── app.js / app.ts
-  ├── package.json
-  ├── .env
+  |-- src/
+  |   `-- app.js / app.ts
+  |-- package.json
+  `-- .env
 ```
 
 ---

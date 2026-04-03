@@ -7,7 +7,7 @@ function createProjectFolder(projectPath) {
   }
 
   fs.mkdirSync(projectPath, { recursive: true });
-  console.log(chalk.green("📁 Project created"));
+  console.log(chalk.green("Project created"));
 }
 
 module.exports = { createProjectFolder };

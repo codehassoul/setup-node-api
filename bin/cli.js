@@ -1,19 +1,20 @@
 #!/usr/bin/env node
 
+const path = require("path");
 const { Command } = require("commander");
+const packageJson = require("../package.json");
 const { createApp } = require("../src/core");
 const {
   validateProjectName,
 } = require("../src/core/validators/projectValidator");
 const { handleExistingDir } = require("../src/core/services/fileService");
-const path = require("path");
 
 const program = new Command();
 
 program
   .name("setup-node-api")
   .description("CLI to create a Node.js Express API")
-  .version("1.0.0");
+  .version(packageJson.version);
 
 program
   .argument("[project-name]", "Name of the project")
@@ -28,38 +29,40 @@ program
         const projectPathCheck = path.join(process.cwd(), projectName);
 
         if (projectPathCheck === process.cwd()) {
-          console.log("❌ Cannot use current directory as project name.");
+          console.log("Error: cannot use current directory as project name.");
           process.exit(1);
         }
       }
     } catch (err) {
-      console.log("❌", err.message);
+      console.log("Error:", err.message);
       process.exit(1);
     }
 
-    // ✅ PORT VALIDATION
-    if (options.port && isNaN(options.port)) {
-      console.log("❌ Port must be a number");
+    const parsedPort =
+      options.port === undefined ? undefined : Number.parseInt(options.port, 10);
+
+    if (
+      options.port !== undefined &&
+      (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535)
+    ) {
+      console.log("Error: port must be an integer between 1 and 65535.");
       process.exit(1);
     }
 
-    // ⚠️ projectName might be undefined → that's okay (core will handle prompts)
     const projectPath = projectName
       ? path.join(process.cwd(), projectName)
       : null;
 
-    // 🚨 EXTRA SAFETY (only if name exists)
     if (projectPath && projectPath === process.cwd()) {
-      console.log("❌ Refusing to overwrite current directory.");
+      console.log("Error: refusing to overwrite the current directory.");
       process.exit(1);
     }
 
-    // ✅ Handle overwrite ONLY if projectName exists
     if (projectPath) {
       try {
         await handleExistingDir(projectPath);
       } catch (err) {
-        console.log("⚠️", err.message);
+        console.log("Warning:", err.message);
         process.exit(0);
       }
     }
@@ -68,10 +71,10 @@ program
       await createApp(projectName, {
         typescript: options.typescript,
         install: options.install === false ? false : undefined,
-        port: options.port,
+        port: parsedPort,
       });
     } catch (err) {
-      console.log("❌ Unexpected error:", err.message);
+      console.log("Error:", err.message);
       process.exit(1);
     }
   });

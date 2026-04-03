@@ -1,5 +1,9 @@
 let inquirer;
 
+function isInteractive() {
+  return Boolean(process.stdin.isTTY && process.stdout.isTTY);
+}
+
 async function getInquirer() {
   if (!inquirer) {
     inquirer = (await import("inquirer")).default;
@@ -8,8 +12,6 @@ async function getInquirer() {
 }
 
 async function askProjectDetails(options = {}) {
-  const inquirer = await getInquirer();
-
   const questions = [];
 
   if (!options.projectName) {
@@ -39,6 +41,29 @@ async function askProjectDetails(options = {}) {
     });
   }
 
+  if (!questions.length) {
+    return {
+      projectName: options.projectName,
+      typescript: options.typescript,
+      install: options.install,
+    };
+  }
+
+  if (!isInteractive()) {
+    if (!options.projectName) {
+      throw new Error(
+        "Project name is required in non-interactive mode. Pass it as an argument."
+      );
+    }
+
+    return {
+      projectName: options.projectName,
+      typescript: options.typescript ?? false,
+      install: options.install ?? true,
+    };
+  }
+
+  const inquirer = await getInquirer();
   const answers = await inquirer.prompt(questions);
 
   return {

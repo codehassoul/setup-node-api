@@ -1,7 +1,17 @@
 const fs = require("fs");
 
+function isInteractive() {
+  return Boolean(process.stdin.isTTY && process.stdout.isTTY);
+}
+
 async function handleExistingDir(projectPath) {
   if (!fs.existsSync(projectPath)) return;
+
+  if (!isInteractive()) {
+    throw new Error(
+      "Target folder already exists. Remove it first or rerun this command in an interactive terminal."
+    );
+  }
 
   const { default: inquirer } = await import("inquirer");
 
@@ -28,7 +38,7 @@ async function handleExistingDir(projectPath) {
   }
 
   fs.rmSync(projectPath, { recursive: true, force: true });
-  console.log("🧹 Existing folder removed\n");
+  console.log("Existing folder removed\n");
 }
 
 module.exports = { handleExistingDir };
