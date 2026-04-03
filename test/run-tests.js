@@ -167,13 +167,15 @@ async function testCreateAppRejectsExistingDirectoryAfterPromptResolution() {
     const existingProjectPath = path.join(tempRoot, "existing-app");
     fs.mkdirSync(existingProjectPath, { recursive: true });
 
-    await assert.rejects(
-      createApp("existing-app", {
-        install: false,
-        typescript: false,
-      }),
-      /Target folder already exists|Operation cancelled|Folder already exists/
-    );
+    await withInteractiveState(false, false, async () => {
+      await assert.rejects(
+        createApp("existing-app", {
+          install: false,
+          typescript: false,
+        }),
+        /Target folder already exists|Operation cancelled|Folder already exists/
+      );
+    });
   });
 }
 
