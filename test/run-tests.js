@@ -25,6 +25,36 @@ async function withTempDir(run) {
   }
 }
 
+async function withInteractiveState(stdinIsTTY, stdoutIsTTY, run) {
+  const stdinDescriptor = Object.getOwnPropertyDescriptor(process.stdin, "isTTY");
+  const stdoutDescriptor = Object.getOwnPropertyDescriptor(process.stdout, "isTTY");
+
+  Object.defineProperty(process.stdin, "isTTY", {
+    configurable: true,
+    value: stdinIsTTY,
+  });
+  Object.defineProperty(process.stdout, "isTTY", {
+    configurable: true,
+    value: stdoutIsTTY,
+  });
+
+  try {
+    await run();
+  } finally {
+    if (stdinDescriptor) {
+      Object.defineProperty(process.stdin, "isTTY", stdinDescriptor);
+    } else {
+      delete process.stdin.isTTY;
+    }
+
+    if (stdoutDescriptor) {
+      Object.defineProperty(process.stdout, "isTTY", stdoutDescriptor);
+    } else {
+      delete process.stdout.isTTY;
+    }
+  }
+}
+
 function runCli(args, cwd) {
   try {
     return execFileSync(process.execPath, [cliPath, ...args], {
@@ -108,8 +138,12 @@ async function testTypeScriptTemplate() {
 }
 
 async function testPromptDefaults() {
-  const details = await askProjectDetails({
-    projectName: "plain-api",
+  let details;
+
+  await withInteractiveState(false, false, async () => {
+    details = await askProjectDetails({
+      projectName: "plain-api",
+    });
   });
 
   assert.deepEqual(details, {
