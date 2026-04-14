@@ -21,23 +21,26 @@ function warn(message) {
 
 async function createProject(projectName, options = {}) {
   const projectPath = path.join(process.cwd(), projectName);
+  const templateName = options.typescript ? "node-api-ts" : "node-api";
+  const templateRoot = options.templateRoot ?? path.join(__dirname, "../../templates");
+  const templatePath = path.join(templateRoot, templateName);
 
   info(`\nCreating Node API: ${projectName}\n`);
-
-  createProjectFolder(projectPath);
-  success("Project folder created");
-
-  const templateName = options.typescript ? "node-api-ts" : "node-api";
-  const templatePath = path.join(__dirname, "../../templates", templateName);
 
   if (!fs.existsSync(templatePath)) {
     throw new Error("Template not found");
   }
 
+  createProjectFolder(projectPath);
+  success("Project folder created");
+
   copyTemplate(templatePath, projectPath);
   success("Template copied");
-  updatePackageMetadata(projectPath, projectName);
-  success("Package metadata updated");
+  updatePackageMetadata(projectPath, projectName, {
+    cors: options.cors,
+    typescript: options.typescript,
+  });
+  success("Project files customized");
 
   if (options.port) {
     fs.writeFileSync(

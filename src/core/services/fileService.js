@@ -4,28 +4,36 @@ function isInteractive() {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
 }
 
-async function handleExistingDir(projectPath) {
-  if (!fs.existsSync(projectPath)) return;
+async function handleExistingDir(projectPath, dependencies = {}) {
+  const existsSync = dependencies.existsSync ?? fs.existsSync;
+  const removeDirSync = dependencies.removeDirSync ?? fs.rmSync;
+  const promptOverwrite =
+    dependencies.promptOverwrite ??
+    (async () => {
+      const { default: inquirer } = await import("inquirer");
+      return inquirer.prompt([
+        {
+          type: "confirm",
+          name: "overwrite",
+          message: "Folder already exists. Overwrite?",
+          default: false,
+        },
+      ]);
+    });
+  const isInteractiveFn = dependencies.isInteractive ?? isInteractive;
 
-  if (!isInteractive()) {
+  if (!existsSync(projectPath)) return;
+
+  if (!isInteractiveFn()) {
     throw new Error(
       "Target folder already exists. Remove it first or rerun this command in an interactive terminal."
     );
   }
 
-  const { default: inquirer } = await import("inquirer");
-
   let answer;
 
   try {
-    answer = await inquirer.prompt([
-      {
-        type: "confirm",
-        name: "overwrite",
-        message: "Folder already exists. Overwrite?",
-        default: false,
-      },
-    ]);
+    answer = await promptOverwrite();
   } catch (err) {
     if (err.name === "ExitPromptError") {
       throw new Error("Operation cancelled");
@@ -37,7 +45,7 @@ async function handleExistingDir(projectPath) {
     throw new Error("Operation cancelled");
   }
 
-  fs.rmSync(projectPath, { recursive: true, force: true });
+  removeDirSync(projectPath, { recursive: true, force: true });
   console.log("Existing folder removed\n");
 }
 

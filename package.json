@@ -1,6 +1,6 @@
 {
   "name": "setup-node-api",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "description": "CLI tool to scaffold Node.js + Express APIs instantly",
   "type": "commonjs",
   "main": "bin/cli.js",

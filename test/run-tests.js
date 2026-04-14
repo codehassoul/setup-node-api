@@ -7,6 +7,8 @@ const path = require("node:path");
 const createProject = require("../src/core/createProject");
 const { createApp } = require("../src/core");
 const { askProjectDetails } = require("../src/core/promptService");
+const { handleExistingDir } = require("../src/core/services/fileService");
+const { installDependencies } = require("../src/core/services/installService");
 const { validateProjectName } = require("../src/core/validators/projectValidator");
 
 const cliPath = path.join(__dirname, "..", "bin", "cli.js");
@@ -107,6 +109,7 @@ async function maybeRunCliTest(testFn) {
 async function testJavaScriptTemplate() {
   await withTempDir(async (tempRoot) => {
     await createProject("sample-api", {
+      cors: true,
       install: false,
       port: 4010,
     });
@@ -115,9 +118,32 @@ async function testJavaScriptTemplate() {
       fs.readFileSync(path.join(tempRoot, "sample-api", "package.json"), "utf8")
     );
     const envFile = fs.readFileSync(path.join(tempRoot, "sample-api", ".env"), "utf8");
+    const readmeFile = fs.readFileSync(
+      path.join(tempRoot, "sample-api", "README.md"),
+      "utf8"
+    );
+    const gitignoreFile = fs.readFileSync(
+      path.join(tempRoot, "sample-api", ".gitignore"),
+      "utf8"
+    );
+    const appFile = fs.readFileSync(
+      path.join(tempRoot, "sample-api", "src", "app.js"),
+      "utf8"
+    );
 
     assert.equal(packageJson.name, "sample-api");
+    assert.equal(packageJson.scripts.dev, "node --watch src/app.js");
+    assert.equal(packageJson.dependencies.cors, "^2.8.5");
     assert.equal(envFile, "PORT=4010\n");
+    assert.match(readmeFile, /# sample-api/);
+    assert.match(readmeFile, /CORS is enabled/);
+    assert.match(gitignoreFile, /node_modules/);
+    assert.match(appFile, /app\.post\("\/echo"/);
+    assert.match(appFile, /app\.use\(cors\(\)\)/);
+    assert.match(appFile, /express\.json/);
+    assert.match(appFile, /console\.log\(`\$\{req\.method\} \$\{req\.url\}`\)/);
+    assert.match(appFile, /Not Found/);
+    assert.match(appFile, /Internal Server Error/);
   });
 }
 
@@ -131,9 +157,25 @@ async function testTypeScriptTemplate() {
     const packageJson = JSON.parse(
       fs.readFileSync(path.join(tempRoot, "typed-api", "package.json"), "utf8")
     );
+    const readmeFile = fs.readFileSync(
+      path.join(tempRoot, "typed-api", "README.md"),
+      "utf8"
+    );
+    const gitignoreFile = fs.readFileSync(
+      path.join(tempRoot, "typed-api", ".gitignore"),
+      "utf8"
+    );
+    const appFile = fs.readFileSync(
+      path.join(tempRoot, "typed-api", "src", "app.ts"),
+      "utf8"
+    );
 
     assert.equal(packageJson.name, "typed-api");
     assert.equal(packageJson.main, "dist/app.js");
+    assert.match(readmeFile, /# typed-api/);
+    assert.match(gitignoreFile, /dist/);
+    assert.match(appFile, /express\.json/);
+    assert.match(appFile, /Internal Server Error/);
   });
 }
 
@@ -150,10 +192,33 @@ async function testPromptDefaults() {
     projectName: "plain-api",
     typescript: false,
     install: true,
+    cors: false,
+  });
+}
+
+async function testYesDefaults() {
+  const details = await askProjectDetails({
+    projectName: "fast-api",
+    yes: true,
+  });
+
+  assert.deepEqual(details, {
+    projectName: "fast-api",
+    typescript: false,
+    install: true,
+    cors: false,
   });
 }
 
 async function testProjectNameValidation() {
+  assert.throws(
+    () => validateProjectName(""),
+    /Project name cannot be empty/
+  );
+  assert.throws(
+    () => validateProjectName("node_modules"),
+    /reserved/
+  );
   assert.throws(
     () => validateProjectName("bad name"),
     /Use only letters, numbers, hyphens \(-\), and underscores \(_\)/
@@ -179,12 +244,108 @@ async function testCreateAppRejectsExistingDirectoryAfterPromptResolution() {
   });
 }
 
+async function testCreateAppRejectsInvalidProvidedNameBeforePrompting() {
+  let promptWasReached = false;
+
+  await assert.rejects(
+    createApp(".git", {
+      get typescript() {
+        promptWasReached = true;
+        return undefined;
+      },
+    }),
+    /reserved/
+  );
+
+  assert.equal(promptWasReached, false);
+}
+
+async function testYesRequiresProjectName() {
+  await assert.rejects(
+    askProjectDetails({
+      yes: true,
+    }),
+    /Project name is required when using --yes/
+  );
+}
+
+async function testHandleExistingDirCancelsOverwrite() {
+  await withTempDir(async (tempRoot) => {
+    const existingProjectPath = path.join(tempRoot, "cancel-app");
+    fs.mkdirSync(existingProjectPath, { recursive: true });
+
+    await assert.rejects(
+      handleExistingDir(existingProjectPath, {
+        existsSync: () => true,
+        isInteractive: () => true,
+        promptOverwrite: async () => ({ overwrite: false }),
+      }),
+      /Operation cancelled/
+    );
+
+    assert.equal(fs.existsSync(existingProjectPath), true);
+  });
+}
+
+async function testHandleExistingDirOverwritesWhenConfirmed() {
+  await withTempDir(async (tempRoot) => {
+    const existingProjectPath = path.join(tempRoot, "overwrite-app");
+    fs.mkdirSync(existingProjectPath, { recursive: true });
+
+    await handleExistingDir(existingProjectPath, {
+      existsSync: () => true,
+      isInteractive: () => true,
+      promptOverwrite: async () => ({ overwrite: true }),
+    });
+
+    assert.equal(fs.existsSync(existingProjectPath), false);
+  });
+}
+
+async function testInstallDependenciesFailureHandling() {
+  await assert.rejects(
+    installDependencies(process.cwd(), {
+      runCommand: () => ({ status: 1 }),
+      installCommand: { command: "npm", args: ["install"] },
+    }),
+    /Dependency installation failed \(npm exited with code 1\)/
+  );
+}
+
+async function testInstallDependenciesUsesWindowsCommandWrapper() {
+  const windowsCommand = require("../src/core/services/installService").getInstallCommand(
+    "win32"
+  );
+
+  assert.equal(windowsCommand.command, "cmd.exe");
+  assert.deepEqual(windowsCommand.args, ["/d", "/s", "/c", "npm install"]);
+}
+
+async function testMissingTemplateFailsClearly() {
+  await withTempDir(async (tempRoot) => {
+    const emptyTemplatesRoot = path.join(tempRoot, "empty-templates");
+    fs.mkdirSync(emptyTemplatesRoot, { recursive: true });
+
+    await assert.rejects(
+      createProject("broken-api", {
+        install: false,
+        templateRoot: emptyTemplatesRoot,
+      }),
+      /Template not found/
+    );
+
+    assert.equal(fs.existsSync(path.join(tempRoot, "broken-api")), false);
+  });
+}
+
 async function testCliHelpOutput() {
   const output = runCli(["--help"], process.cwd());
 
   assert.match(output, /Scaffold a Node\.js \+ Express API/);
   assert.match(output, /--typescript/);
   assert.match(output, /--no-install/);
+  assert.match(output, /--cors/);
+  assert.match(output, /--yes/);
 }
 
 async function testCliScaffoldsJavaScriptProject() {
@@ -242,11 +403,22 @@ async function main() {
     ["JavaScript template customization", testJavaScriptTemplate],
     ["TypeScript template customization", testTypeScriptTemplate],
     ["Non-interactive prompt defaults", testPromptDefaults],
+    ["Yes-mode defaults", testYesDefaults],
     ["Project name validation", testProjectNameValidation],
     [
       "Existing-directory protection after final project resolution",
       testCreateAppRejectsExistingDirectoryAfterPromptResolution,
     ],
+    [
+      "Provided invalid names fail before prompting",
+      testCreateAppRejectsInvalidProvidedNameBeforePrompting,
+    ],
+    ["Yes-mode requires project name", testYesRequiresProjectName],
+    ["Overwrite prompt cancellation", testHandleExistingDirCancelsOverwrite],
+    ["Overwrite prompt confirmation", testHandleExistingDirOverwritesWhenConfirmed],
+    ["Dependency installation failure handling", testInstallDependenciesFailureHandling],
+    ["Windows install command wrapper", testInstallDependenciesUsesWindowsCommandWrapper],
+    ["Missing template handling", testMissingTemplateFailsClearly],
     ["CLI help output", () => maybeRunCliTest(testCliHelpOutput)],
     [
       "CLI JavaScript scaffold smoke test",

@@ -13,9 +13,12 @@ Node.js 20.12.0 or newer is required.
 - Scaffold a ready-to-run Express API
 - Choose JavaScript or TypeScript
 - Use prompts interactively or pass CLI flags
+- Accept defaults instantly with `--yes`
 - Validate project names before generation
 - Avoid overwriting existing folders without confirmation
 - Optionally skip dependency installation
+- Optionally enable CORS during generation
+- Include basic API defaults like JSON parsing, request logging, `/health`, `/echo`, and common starter files
 
 ## Quick start
 
@@ -47,6 +50,18 @@ Set a custom port:
 npx setup-node-api my-api --port 8080
 ```
 
+Generate with defaults and skip prompts:
+
+```bash
+npx setup-node-api my-api --yes
+```
+
+Generate with CORS enabled:
+
+```bash
+npx setup-node-api my-api --cors
+```
+
 ## CLI usage
 
 ```bash
@@ -60,6 +75,8 @@ setup-node-api [project-name] [options]
 | `--typescript` | Generate the TypeScript template |
 | `--no-install` | Skip dependency installation |
 | `--port <number>` | Write a custom `PORT` value to `.env` |
+| `--cors` | Add CORS support to the generated API |
+| `-y, --yes` | Use defaults for any missing options |
 | `-h, --help` | Show help |
 | `-V, --version` | Show the installed CLI version |
 
@@ -71,8 +88,10 @@ JavaScript template:
 
 ```text
 my-api/
+|-- .gitignore
 |-- .env
 |-- package.json
+|-- README.md
 `-- src/
     `-- app.js
 ```
@@ -81,14 +100,16 @@ TypeScript template:
 
 ```text
 my-api/
+|-- .gitignore
 |-- .env
 |-- package.json
+|-- README.md
 |-- tsconfig.json
 `-- src/
     `-- app.ts
 ```
 
-The generated project name in `package.json` is automatically set to the selected folder name.
+The generated project name in `package.json` is automatically set to the selected folder name, and the starter app includes request logging, JSON parsing, a `/health` endpoint, a `/echo` endpoint, a 404 handler, and a basic error handler.
 
 ## Examples
 
@@ -102,6 +123,12 @@ Create a TypeScript project and set a custom port:
 
 ```bash
 setup-node-api my-api --typescript --port 4000
+```
+
+Create a JavaScript API with CORS enabled and no prompts:
+
+```bash
+setup-node-api my-api --cors --yes
 ```
 
 Ask the CLI to guide you interactively:
@@ -125,7 +152,9 @@ GitHub Actions runs the test suite on Node.js 20 and 22 across Linux, Windows, a
 ## Notes
 
 - In a non-interactive environment, provide the project name as an argument.
+- When using `--yes`, you still need to provide the project name as an argument.
 - If the target folder already exists, the CLI stops unless you explicitly confirm overwrite in an interactive terminal.
+- The JavaScript template includes a `dev` script using Node's built-in watch mode.
 - `prepublishOnly` runs `npm run check` before publish.
 
 ## License

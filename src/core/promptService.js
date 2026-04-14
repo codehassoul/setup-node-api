@@ -13,6 +13,21 @@ async function getInquirer() {
 }
 
 async function askProjectDetails(options = {}) {
+  if (options.yes) {
+    if (!options.projectName) {
+      throw new Error(
+        "Project name is required when using --yes. Pass it as an argument."
+      );
+    }
+
+    return {
+      projectName: options.projectName,
+      typescript: options.typescript ?? false,
+      install: options.install ?? true,
+      cors: options.cors ?? false,
+    };
+  }
+
   const questions = [];
 
   if (!options.projectName) {
@@ -49,11 +64,21 @@ async function askProjectDetails(options = {}) {
     });
   }
 
+  if (options.cors === undefined) {
+    questions.push({
+      type: "confirm",
+      name: "cors",
+      message: "Enable CORS?",
+      default: false,
+    });
+  }
+
   if (!questions.length) {
     return {
       projectName: options.projectName,
       typescript: options.typescript,
       install: options.install,
+      cors: options.cors,
     };
   }
 
@@ -68,6 +93,7 @@ async function askProjectDetails(options = {}) {
       projectName: options.projectName,
       typescript: options.typescript ?? false,
       install: options.install ?? true,
+      cors: options.cors ?? false,
     };
   }
 
@@ -87,6 +113,7 @@ async function askProjectDetails(options = {}) {
     projectName: options.projectName || answers.projectName,
     typescript: options.typescript ?? answers.typescript,
     install: options.install ?? answers.install,
+    cors: options.cors ?? answers.cors,
   };
 }
 
